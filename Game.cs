@@ -71,6 +71,7 @@ namespace DungeonExplorer
                 {
                     Console.WriteLine("You decide not to approach the figure and leave the room.");
                     Console.WriteLine("You turn back and see a 3 Headed Monster blocking the exit.");
+                    Encounters.FirstEncounter(player); // This triggers the first encounter
                 }
             }
             else if (roomChoice == "dining room")
