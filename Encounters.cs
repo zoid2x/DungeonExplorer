@@ -6,12 +6,8 @@ using System.Threading.Tasks;
 
 namespace DungeonExplorer
 {
-    internal class Program
+    public class Encounters
+
     {
-        static void Main(string[] args)
-        {
-            Game game = new Game();
-            game.Start();
-        }
     }
 }
