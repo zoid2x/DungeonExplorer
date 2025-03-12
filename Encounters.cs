@@ -18,7 +18,7 @@ namespace DungeonExplorer
             Console.WriteLine("\nThis huge 3 Headed Monster is blocking your exit");
             Console.WriteLine("He turns... (Press ENTER)");
             Console.ReadKey();
-            Combat(player, false, "3 Headed Monster", 2, 5);
+            Combat(player, false, "3 Headed Monster", 2, 8);
         }
         
         
@@ -28,7 +28,7 @@ namespace DungeonExplorer
             Console.WriteLine("Ahead of you is a huge shadow...");
             Console.WriteLine("You enter into the final battle... Will you prevail? (Press ENTER)");
             Console.ReadKey();
-            Combat(player, true, "", 0, 0);
+            Combat(player, true, "", 0, 0, true); // Set `isFinalBoss` to true
         }
 
 
@@ -37,7 +37,16 @@ namespace DungeonExplorer
             Console.WriteLine("\nOut of nowhere this 7 foot Spider Drops down from the roof");
             Console.WriteLine("His fangs drip with venom as it stares at you with murderous eyes... (Press ENTER)");
             Console.ReadKey();
-            Combat(player, false, "Big ahh Spider", 4, 7);
+            Combat(player, false, "Big ahh Spider", 3, 8);
+        }
+
+        public static void ThirdEncounter(Player player)
+        {
+            Console.Clear();
+            Console.WriteLine("As you enter the room, a powerful Venom Fang emerges from the floor!");
+            Console.WriteLine("Its eyes glow with dark green venom as it prepares to strike... (Press ENTER)");
+            Console.ReadKey();
+            Combat(player, false, "Venom Fang", 3, 10);
         }
 
 
@@ -53,7 +62,7 @@ namespace DungeonExplorer
             }
         }
 
-        public static void Combat(Player player, bool random, string name, int power, int health)
+        public static void Combat(Player player, bool random, string name, int power, int health, bool isFinalBoss = false)
         {
             string n = "";
             int p = 0;
@@ -63,7 +72,7 @@ namespace DungeonExplorer
             {
                 n = GetName();
                 p = rand.Next(1, 8);
-                h = rand.Next(5, 20);
+                h = rand.Next(10, 15);
             }
             else
             {
@@ -71,18 +80,28 @@ namespace DungeonExplorer
                 p = power;
                 h = health;
             }
-            while (h > 0)
+
+            while (h > 0 && player.Health > 0)
             {
+                // Display boss stats
                 Console.Clear();
-                Console.WriteLine(n);
-                Console.WriteLine(p + "/" + h);
                 Console.WriteLine("==========================");
+                Console.WriteLine("|       BOSS STATS      |");
+                Console.WriteLine("==========================");
+                Console.WriteLine("| Name:   " + n.PadRight(15) + " |");
+                Console.WriteLine("| Health: " + h.ToString().PadRight(15) + " |");
+                Console.WriteLine("| Power:  " + p.ToString().PadRight(15) + " |");
+                Console.WriteLine("==========================");
+
+                // Combat Menu
+                Console.WriteLine("\n==========================");
                 Console.WriteLine("| (A)ttack (D)efend |");
                 Console.WriteLine("|  (R)un    (H)eal  |");
                 Console.WriteLine("==========================");
-                Console.WriteLine("My Potions: " + player.InventoryContents() + " My Health: " + player.Health);
+                Console.WriteLine("My Potions: " + player.Potion + " My Health: " + player.Health);
                 Console.WriteLine("\nChoose an option out of these four!");
                 Console.Write("> ");
+
                 string input = Console.ReadLine().ToLower();
 
                 // Handles invalid input
@@ -113,8 +132,6 @@ namespace DungeonExplorer
                     player.Health -= damage;
                     h -= attack;
                 }
-
-
                 else if (input == "d")
                 {
                     // Defend
@@ -127,8 +144,6 @@ namespace DungeonExplorer
                     player.Health -= damage;
                     h -= attack;
                 }
-
-
                 else if (input == "r")
                 {
                     // Run
@@ -148,8 +163,6 @@ namespace DungeonExplorer
                         Console.ReadKey();
                     }
                 }
-
-
                 else if (input == "h")
                 {
                     // Heal
@@ -159,40 +172,67 @@ namespace DungeonExplorer
                         int damage = p - player.ArmourValue;
                         if (damage < 0)
                             damage = 0;
-                        Console.WriteLine("You are unable to heal and the " + n + " strikes and you lose " + damage + " health!" );
-
+                        Console.WriteLine("You are unable to heal and the " + n + " strikes and you lose " + damage + " health!");
+                        player.Health -= damage;
                     }
                     else
                     {
                         Console.WriteLine("You reach into your bag and pull out a health potion, you drink it and feel revitalized.");
                         int potionV = 5;
+                        player.Heal(potionV);
                         Console.WriteLine("You gain " + potionV + " health");
-                        player.Health += potionV;
+                        player.Potion--; // Decrease the number of potions by 1
                         Console.WriteLine("As you were occupied drinking the potion, the " + n + " strikes and you");
                         int damage = (p / 2) - player.ArmourValue;
                         if (damage < 0)
                             damage = 0;
                         Console.WriteLine("You lose " + damage + " health (Press Enter...)");
+                        player.Health -= damage;
                     }
                     Console.ReadKey();
+                }
+
+                // Check if player has died
+                if (player.Health <= 0)
+                {
+                    Console.WriteLine("\nYou were defeated by the " + n + "... Game Over!");
+                    Console.ReadKey();
+                    Environment.Exit(0); // End the game
                 }
                 Console.ReadKey();
             }
 
+            // Enemy Defeat Check
             if (h <= 0)
             {
                 int c = rand.Next(10, 50);
-                Console.WriteLine("\nYou defeated the "+ n +", its body dissolves into "+ c +" gold coins! (Press Enter.)");
+                Console.WriteLine("\nYou defeated the " + n + ", its body dissolves into " + c + " gold coins! (Press Enter.)");
                 Console.ReadKey();
-                player.PickUpItem(""+ c +" Gold"); // Reward for defeating the enemy
+                player.PickUpItem("" + c + " Gold"); // Reward for defeating the enemy
+
+                // Special reward for defeating the Venom Fang Boss
+                if (n == "Venom Fang") // Check if it's the Venom Fang Boss
+                {
+                    Console.WriteLine("\nAs the Venom Fang Boss falls, you notice a magical staff among its remains!");
+                    Console.WriteLine("You pick up the Magical Staff. It hums with arcane energy!");
+                    player.PickUpItem("Magical Staff"); // Add Magical Staff to inventory
+                }
+
+                // Special reward for defeating the final boss
+                if (isFinalBoss)
+                {
+                    Console.Clear();
+                    Console.WriteLine("\nAs the final boss falls, you notice a treasure chest among its remains!");
+                    Console.WriteLine("You open the chest and find the legendary treasure!");
+                    player.PickUpItem("Legendary Treasure"); // Add the artifact to the player's inventory
+
+                    Console.WriteLine("\nCongratulations! You have completed the game!");
+                    Console.WriteLine("Press Enter to exit...");
+                    Console.ReadKey();
+                    Environment.Exit(0); // End the game
+                }
+
                 Console.Clear();
-            }
-            else if (player.Health <= 0)
-            {
-                // Death Code
-                Console.WriteLine("\nYou were defeated by the " + n + "... Game Over!");
-                Console.ReadKey();
-                Environment.Exit(0); // End the game
             }
         }
         public static string GetName()

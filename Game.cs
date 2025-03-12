@@ -12,9 +12,18 @@ namespace DungeonExplorer
 
         public Game()
         {
-            player = new Player("Name", 20); // Initialize the player with their name and health
+            player = new Player("Name", 10); // Initialize the player with their name and health
             currentRoom = new Room("\nYou see a door in front of you and a door to your right...");
             finalRoom = new Room("\nThis is the final room. A powerful presence awaits you...");
+        }
+
+        // Add the HandleFinalRoom method here
+        private void HandleFinalRoom()
+        {
+            Console.Clear();
+            Console.WriteLine(finalRoom.GetDescription());
+            Console.WriteLine("You enter the final room...");
+            Encounters.BasicFightEncounter(player); // Trigger the final encounter
         }
 
         public void Start()
@@ -36,15 +45,15 @@ namespace DungeonExplorer
                 Console.WriteLine(currentRoom.GetDescription()); // Display the current room's description
 
                 string roomChoice = "";
-                while (roomChoice != "living room" && roomChoice != "dining room")
+                while (roomChoice != "living room" && roomChoice != "dining room" && roomChoice != "armory" && roomChoice != "library")
                 {
-                    Console.WriteLine("\nDo you want to enter the living room or the dining room?");
+                    Console.WriteLine("\nDo you want to enter the living room, dining room, armory, or library?");
                     Console.Write("> ");
                     roomChoice = Console.ReadLine().ToLower();
 
-                    if (roomChoice != "living room" && roomChoice != "dining room")
+                    if (roomChoice != "living room" && roomChoice != "dining room" && roomChoice != "armory" && roomChoice != "library")
                     {
-                        Console.WriteLine("You have entered an invalid choice. Please answer living room or dining room.");
+                        Console.WriteLine("You have entered an invalid choice. Please answer living room, dining room, armory, or library.");
                     }
                 }
 
@@ -113,6 +122,42 @@ namespace DungeonExplorer
                         Encounters.SecondEncounter(player); // This triggers the encounter
                     }
                 }
+                else if (roomChoice == "armory")
+                {
+                    Console.WriteLine("You have entered the armory.");
+                    Console.WriteLine("\nAs you enter the room, you see a gleaming sword mounted on the wall.");
+
+                    string swordChoice = "";
+                    while (swordChoice != "yes" && swordChoice != "no")
+                    {
+                        Console.WriteLine("Do you want to take the sword or leave the room? (yes/no)");
+                        Console.Write("> ");
+                        swordChoice = Console.ReadLine().ToLower();
+
+                        if (swordChoice != "yes" && swordChoice != "no")
+                        {
+                            Console.WriteLine("You have entered an invalid choice. Please answer yes or no.");
+                        }
+                    }
+
+                    if (swordChoice == "yes")
+                    {
+                        Console.Clear();
+                        Console.WriteLine("You take the gleaming sword. It feels powerful in your hands!");
+                        player.PickUpItem("Gleaming Sword"); // Adds the item to the player's inventory
+                        hasWeapon = true; // Update weapon status
+                    }
+                    else
+                    {
+                        Console.WriteLine("You decide not to take the sword and leave the room.");
+                    }
+                }
+                else if (roomChoice == "library")
+                {
+                    Console.WriteLine("You have entered the library (Press Enter...)");
+                    Console.ReadKey();
+                    Encounters.ThirdEncounter(player); // Trigger the third encounter
+                }
 
                 // Display inventory
                 Console.WriteLine($"\n{player.Name}'s Inventory: {player.InventoryContents()}");
@@ -129,12 +174,17 @@ namespace DungeonExplorer
                         Console.Write("> ");
                         string finalChoice = Console.ReadLine().ToLower();
 
+                        // Input validation for finalChoice
+                        while (finalChoice != "enter" && finalChoice != "explore")
+                        {
+                            Console.WriteLine("Invalid input. Please type 'enter' to proceed to the final room or 'explore' to keep exploring.");
+                            Console.Write("> ");
+                            finalChoice = Console.ReadLine().ToLower();
+                        }
+
                         if (finalChoice == "enter")
                         {
-                            Console.Clear();
-                            Console.WriteLine(finalRoom.GetDescription());
-                            Console.WriteLine("You enter the final room...");
-                            Encounters.BasicFightEncounter(player); // Trigger the final encounter
+                            HandleFinalRoom(); // Call the HandleFinalRoom method
                             return; // End the game after the final encounter
                         }
                         else
@@ -148,12 +198,17 @@ namespace DungeonExplorer
                         Console.Write("> ");
                         string finalChoice = Console.ReadLine().ToLower();
 
+                        // Input validation for finalChoice
+                        while (finalChoice != "yes" && finalChoice != "no")
+                        {
+                            Console.WriteLine("Invalid input. Please type 'yes' to proceed to the final room or 'no' to keep exploring.");
+                            Console.Write("> ");
+                            finalChoice = Console.ReadLine().ToLower();
+                        }
+
                         if (finalChoice == "yes")
                         {
-                            Console.Clear();
-                            Console.WriteLine(finalRoom.GetDescription());
-                            Console.WriteLine("You enter the final room...");
-                            Encounters.BasicFightEncounter(player); // Trigger the final encounter
+                            HandleFinalRoom(); // Call the HandleFinalRoom method
                             return; // End the game after the final encounter
                         }
                         else
@@ -166,4 +221,12 @@ namespace DungeonExplorer
         }
     }
 }
+
+
+
+
+
+
+
+
 
