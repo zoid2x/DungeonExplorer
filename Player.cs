@@ -31,7 +31,7 @@ namespace DungeonExplorer
         }
         public string InventoryContents()
         {
-            return string.Join(", ", inventory);
+            return inventory.Count == 0 ? "Empty" : string.Join(", ", inventory);
         }
     }
 }

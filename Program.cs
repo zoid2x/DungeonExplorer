@@ -12,6 +12,7 @@ namespace DungeonExplorer
         {
             Game game = new Game();
             game.Start();
+            
         }
     }
 }
