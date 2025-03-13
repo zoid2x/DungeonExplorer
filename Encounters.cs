@@ -7,12 +7,20 @@ using System.Threading.Tasks;
 
 namespace DungeonExplorer
 {
+    /// <summary>
+    /// Handles all encounters and combat logic in the game.
+    /// </summary>
     public class Encounters
     {
-        static Random rand = new Random(); // Random number generator
-        
-        
-        // Encounters 
+        static Random rand = new Random(); // Random number generator for the encounters
+
+
+        // Encounters
+
+        /// <summary>
+        /// Triggers the first encounter with a 3-headed monster.
+        /// </summary>
+        /// <param name="player">The player object participating in the encounter.</param>
         public static void FirstEncounter(Player player)
         {
             Console.WriteLine("\nThis huge 3 Headed Monster is blocking your exit");
@@ -20,8 +28,11 @@ namespace DungeonExplorer
             Console.ReadKey();
             Combat(player, false, "3 Headed Monster", 2, 8);
         }
-        
-        
+
+        /// <summary>
+        /// Triggers a basic fight encounter with a random enemy. (Used in the final boss encounter)
+        /// </summary>
+        /// <param name="player">The player object participating in the encounter.</param>
         public static void BasicFightEncounter (Player player)
         {
             Console.Clear();
@@ -31,7 +42,10 @@ namespace DungeonExplorer
             Combat(player, true, "", 0, 0, true); // Set `isFinalBoss` to true
         }
 
-
+        /// <summary>
+        /// Triggers the second encounter with a giant spider.
+        /// </summary>
+        /// <param name="player">The player object participating in the encounter.</param>
         public static void SecondEncounter(Player player)
         {
             Console.WriteLine("\nOut of nowhere this 7 foot Spider Drops down from the roof");
@@ -40,6 +54,10 @@ namespace DungeonExplorer
             Combat(player, false, "Big ahh Spider", 3, 8);
         }
 
+        /// <summary>
+        /// Triggers the third encounter with a venomous creature.
+        /// </summary>
+        /// <param name="player">The player object participating in the encounter.</param>
         public static void ThirdEncounter(Player player)
         {
             Console.Clear();
@@ -52,6 +70,16 @@ namespace DungeonExplorer
 
 
         // Encounter Tools
+
+        /// <summary>
+        /// Handles the combat logic between the player and an enemy.
+        /// </summary>
+        /// <param name="player">The player object.</param>
+        /// <param name="random">Whether the enemy is randomly generated.</param>
+        /// <param name="name">The name of the enemy.</param>
+        /// <param name="power">The power level of the enemy.</param>
+        /// <param name="health">The health of the enemy.</param>
+        /// <param name="isFinalBoss">Whether the enemy is the final boss.</param>
         public static void RandomEncounter(Player player)
         {
             switch (rand.Next(0, 1))
@@ -62,6 +90,7 @@ namespace DungeonExplorer
             }
         }
 
+        // Combat Logic
         public static void Combat(Player player, bool random, string name, int power, int health, bool isFinalBoss = false)
         {
             string n = "";
@@ -227,6 +256,7 @@ namespace DungeonExplorer
                     player.PickUpItem("Legendary Treasure"); // Add the artifact to the player's inventory
 
                     Console.WriteLine("\nCongratulations! You have completed the game!");
+                    Console.WriteLine($"\n{player.Name}'s Inventory: {player.InventoryContents()}"); // Display final inventory
                     Console.WriteLine("Press Enter to exit...");
                     Console.ReadKey();
                     Environment.Exit(0); // End the game
@@ -235,6 +265,11 @@ namespace DungeonExplorer
                 Console.Clear();
             }
         }
+
+        /// <summary>
+        /// Generates a random name for the enemy.
+        /// </summary>
+        /// <returns>A randomly selected enemy name.</returns>
         public static string GetName()
         {
             string[] names = { "Skeleton Boss", "Zombie Boss", "Human Cultist Boss", "Grave Robber Boss" };

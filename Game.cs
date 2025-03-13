@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Media;
 using System.Security.Cryptography.X509Certificates;
 
@@ -29,9 +30,34 @@ namespace DungeonExplorer
         public void Start()
         {
             Console.WriteLine("Welcome to the Haunted Dungeon!");
-            Console.WriteLine("Name:");
-            Console.Write("> ");
-            player.Name = Console.ReadLine();
+            Console.WriteLine("Your goal is to find the key to the final room and defeat the powerful presence within.");
+
+
+            void CheckName()
+            {
+                while (true) // Loop until a valid name is entered
+                {
+                    Console.WriteLine("Name:");
+                    Console.Write("> ");
+                    string inputName = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(inputName))
+                    {
+                        Console.WriteLine("\nName can't be empty.");
+                    }
+                    else if (inputName.Any(char.IsWhiteSpace) || !inputName.All(char.IsLetter))
+                    {
+                        Console.WriteLine("\nName can't contain any whitespace or numbers.");
+                    }
+                    else
+                    {
+                        player.Name = inputName; // Set the player's name
+                        break; // Exit the loop if the name is valid
+                    }
+                }
+            }
+
+            CheckName();
             Console.Clear();
 
             Console.WriteLine("\nYou awaken in a dark, stone-cold room. You feel uneasy and have trouble remembering anything...");
