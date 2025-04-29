@@ -21,7 +21,7 @@ namespace DungeonExplorer
             var player = new Player("TestPlayer", 10);
 
             // Act
-            player.PickUpItem("Spectre Wand");
+            player.PickUpItem(new Item.Weapon("Spectre Wand", 1, ""));
 
             // Assert
             Debug.Assert(player.WeaponValue == 2, "WeaponValue should be 2 after picking up Spectre Wand.");
@@ -40,7 +40,7 @@ namespace DungeonExplorer
 
             // Simulate combat without triggering actual combat logic
             player.Health -= 5; // Simulate player taking damage
-            player.PickUpItem("10 Gold"); // Simulate receiving gold after defeating an enemy
+            player.PickUpItem(new Item.Key("10 Gold", "", "Currency")); // Simulate receiving gold after defeating an enemy
 
             // Assert
             Debug.Assert(player.Health < initialHealth, "Player health should decrease after combat.");

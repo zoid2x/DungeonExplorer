@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static System.Net.Mime.MediaTypeNames;
+using DungeonExplorer;
 
 namespace DungeonExplorer
 {
@@ -44,7 +45,7 @@ namespace DungeonExplorer
         /// </summary>
         public int MaxHealth { get; private set; } // Add a property for MaxHealth
 
-        private List<string> inventory = new List<string>();
+        private Inventory inventory = new Inventory();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Player"/> class.
@@ -66,30 +67,12 @@ namespace DungeonExplorer
         /// Adds an item to the player's inventory and applies stat bonuses.
         /// </summary>
         /// <param name="item">The item to add.</param>
-        public void PickUpItem(string item)
+        public void PickUpItem(Item item)
         {
             inventory.Add(item);
-            Console.WriteLine($"{Name} picked up {item}!");
+            item.Use(this); // Applys the item effect   
+            Console.WriteLine($"{Name} picked up {item.Name}!");
 
-            // Apply stat bonuses for weapons
-            if (item == "Spectre Wand")
-            {
-                WeaponValue += 1; // Increase weapon value by 2
-                Damage += 1; // Increase base damage by 2
-                Console.WriteLine($"Your damage has increased to {Damage}!");
-            }
-            else if (item == "Gleaming Sword")
-            {
-                WeaponValue += 2; 
-                Damage += 2; 
-                Console.WriteLine($"Your damage has increased to {Damage}!");
-            }
-            else if (item == "Magical Staff")
-            {
-                WeaponValue += 3; 
-                Damage += 3; 
-                Console.WriteLine($"Your damage has increased to {Damage}!");
-            }
         }
 
         /// <summary>
@@ -98,7 +81,7 @@ namespace DungeonExplorer
         /// <returns>A string representation of the inventory.</returns>
         public string InventoryContents()
         {
-            return inventory.Count == 0 ? "Empty" : string.Join(", ", inventory);
+            return inventory.Contents();
         }
 
         // Add a method to heal the player without exceeding MaxHealth

@@ -2,20 +2,36 @@
 using System.Linq;
 using System.Media;
 using System.Security.Cryptography.X509Certificates;
+using DungeonExplorer;
 
 namespace DungeonExplorer
 {
     public class Game
     {
+        private void GiveItemsToPlayer()
+        {
+            // Replace string items with Item objects:
+            player.PickUpItem(new Item.Weapon("Spectre Wand", 1, "Ghostly weapon."));
+            player.PickUpItem(new Item.Weapon("Gleaming Sword", 2, "A shining blade."));
+            player.PickUpItem(new Item.Potion("Health Potion", 5, "Restores HP."));
+            player.PickUpItem(new Item.Key("Dungeon Key", "final_room", "Opens the final door."));
+        }
+
         private Player player;
         private Room currentRoom;
         private Room finalRoom; // Final room
+        private GameMap map = new GameMap(); // GameMap instance
 
         public Game()
         {
+            map.AddRoom("living", new Room("\nYou see a door..."));
+            map.AddRoom("dining", new Room("\nA grand dining hall..."));
+            map.AddRoom("final", new Room("\nThis is the final room..."));
+            map.AddConnection("living", "dining");
+
             player = new Player("Name", 10); // Initialize the player with their name and health
-            currentRoom = new Room("\nYou see a door in front of you and a door to your right...");
-            finalRoom = new Room("\nThis is the final room. A powerful presence awaits you...");
+            currentRoom = map.GetRoom("living"); // Use mapped room   
+            finalRoom = map.GetRoom("final");
         }
 
         // Add the HandleFinalRoom method here
@@ -106,7 +122,7 @@ namespace DungeonExplorer
                         Console.Clear();
                         Console.WriteLine("You approach the figure and it turns out to be a friendly ghost.");
                         Console.WriteLine("The ghost provides you with a magical weapon which will assist you on your journey!");
-                        player.PickUpItem("Spectre Wand"); // Adds the item to the player's inventory
+                        player.PickUpItem(new Item.Weapon("Spectre Wand", 1, "Ghostly weapon")); // Adds the item to the player's inventory
                         hasWeapon = true; // Update weapon status
                     }
                     else
@@ -138,7 +154,7 @@ namespace DungeonExplorer
                     {
                         Console.WriteLine("\nYou open the vase and find a key inside.");
                         Console.WriteLine("The key will help you unlock the door to the next room.");
-                        player.PickUpItem("Key"); // Adds the item to the player's inventory
+                        player.PickUpItem(new Item.Key("Dungeon Key", "final_room", "Opens final door")); // Adds the item to the player's inventory
                         hasKey = true; // Update key status
                     }
                     else
@@ -170,7 +186,7 @@ namespace DungeonExplorer
                     {
                         Console.Clear();
                         Console.WriteLine("You take the gleaming sword. It feels powerful in your hands!");
-                        player.PickUpItem("Gleaming Sword"); // Adds the item to the player's inventory
+                        player.PickUpItem(new Item.Weapon("Gleaming Sword", 2, "A shining blade")); // Adds the item to the player's inventory
                         hasWeapon = true; // Update weapon status
                     }
                     else
