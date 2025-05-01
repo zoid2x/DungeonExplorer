@@ -1,4 +1,6 @@
-﻿namespace DungeonExplorer
+﻿using DungeonExplorer;
+
+namespace DungeonExplorer
 {
     public class Room
     {

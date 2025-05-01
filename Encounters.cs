@@ -23,12 +23,20 @@ namespace DungeonExplorer
         /// <param name="player">The player object participating in the encounter.</param>
         public static void FirstEncounter(Player player)
         {
-            var monster = new Monster("3 Headed Monster", power: 8, maxHealth: 2, goldReward: 25);
-            Console.WriteLine($"\nThis huge {monster.Name} is blocking your exit");
+            var monster = new Goblin("Goblin Warrior", power: 5, maxHealth: 8, goldReward: 10);
+            Console.WriteLine($"\nA nasty {monster.Name} blocks your path!");
             Console.WriteLine("He turns... (Press ENTER)");
             Console.ReadKey();
             Combat(player, monster);
         }
+
+        public static void DragonEncounter(Player player)
+        {
+            var monster = new Dragon("Ancient Red Dragon", power: 15, maxHealth: 50, goldReward: 100);
+            Console.WriteLine($"\nThe ground shakes as {monster.Name} appears!");
+            Combat(player, monster);
+        }
+
 
         /// <summary>
         /// Triggers a basic fight encounter with a random enemy. (Used in the final boss encounter)
@@ -41,7 +49,7 @@ namespace DungeonExplorer
             Console.WriteLine("Ahead of you is a huge shadow...");
             Console.WriteLine("You enter into the final battle... Will you prevail? (Press ENTER)");
             Console.ReadKey();
-            Combat(player, finalBoss, isFinalBoss: true);
+            Combat(player, finalBoss, true);
         }
 
         /// <summary>
@@ -81,7 +89,7 @@ namespace DungeonExplorer
         /// <param name="isFinalBoss">Whether the enemy is the final boss.</param>
         public static void Combat(Player player, Monster monster, bool isFinalBoss = false)
         {
-            while (monster.Health > 0 && player.Health > 0)
+            while (monster.IsAlive && player.IsAlive)
             {
                 // Display boss stats
                 Console.Clear();
@@ -127,10 +135,11 @@ namespace DungeonExplorer
                     int damage = monster.Power - player.ArmourValue;
                     if (damage < 0)
                         damage = 0;
-                    int attack = rand.Next(1, player.WeaponValue + 1) + rand.Next(1, 4);
-                    Console.WriteLine("You lose " + damage + " health and deal " + attack + " damage (Press Enter...) ");
-                    player.Health -= damage;
-                    monster.Health -= attack;
+                    int playerAttack = rand.Next(1, player.WeaponValue + 1) + rand.Next(1, 4);
+                    int monsterDamage = monster.Attack(player);
+                    Console.WriteLine($"You deal {playerAttack} damage and take {monsterDamage} damage!");
+                    player.TakeDamage(damage);
+                    monster.TakeDamage(playerAttack);
                     Console.ReadKey();
                 }
                 else if (input == "d")
@@ -142,8 +151,8 @@ namespace DungeonExplorer
                         damage = 0;
                     int attack = (rand.Next(1, player.WeaponValue + 1) / 2) + rand.Next(1, 3);
                     Console.WriteLine("You lose " + damage + " health and deal " + attack + " damage (Press Enter...) ");
-                    player.Health -= damage;
-                    monster.Health -= attack;
+                    player.TakeDamage(damage);
+                    monster.TakeDamage(attack);
                     Console.ReadKey();
                 }
                 else if (input == "r")
@@ -161,7 +170,7 @@ namespace DungeonExplorer
                         int damage = monster.Power - player.ArmourValue;
                         if (damage < 0) damage = 0;
                         Console.WriteLine("You lose " + damage + " health (Press Enter...)");
-                        player.Health -= damage;
+                        player.TakeDamage(damage);
                         Console.ReadKey();
                     }
                 }
@@ -175,7 +184,7 @@ namespace DungeonExplorer
                         if (damage < 0)
                             damage = 0;
                         Console.WriteLine("You are unable to heal and the " + monster.Name + " strikes and you lose " + damage + " health!");
-                        player.Health -= damage;
+                        player.TakeDamage(damage);
                     }
                     else
                     {
@@ -189,7 +198,7 @@ namespace DungeonExplorer
                         if (damage < 0)
                             damage = 0;
                         Console.WriteLine("You lose " + damage + " health (Press Enter...)");
-                        player.Health -= damage;
+                        player.TakeDamage(damage);
                     }
                     Console.ReadKey();
                 }

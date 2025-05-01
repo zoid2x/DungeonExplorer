@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Security.Policy;
+using DungeonExplorer;
 
 namespace DungeonExplorer
 {
-    public abstract class Item
+    /// <summary>
+    /// Abstract base class for all items in the game.
+    /// </summary>
+    public abstract class Item : ICollectible
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -12,6 +18,26 @@ namespace DungeonExplorer
         {
             Name = name;
             Description = description;
+        }
+
+
+        public void OnCollect(Creature collector)
+        {
+            Console.WriteLine($"{collector.Name} collected {Name}!");
+            Use(collector); // Call the abstract Use method
+        }
+
+
+        /// <summary>
+        /// Called when the item is collected by a creature.
+        /// Implementation of ICollectible.OnCollect.
+        /// </summary>
+        /// <param name="collector">The creature that collected this item.</param>
+        public abstract void Use(Creature creature);
+
+        public virtual string GetInfo()
+        {
+            return $"{Name}: {Description}";
         }
 
         // Weapon subclass
@@ -26,30 +52,55 @@ namespace DungeonExplorer
                 DamageBonus = damageBonus;
             }
 
-            public override void Use(Player player)
+            /// <summary>
+            /// Overrides base Use method with weapon-specific behavior.
+            /// </summary>
+            public override void Use(Creature creature)
             {
-                player.WeaponValue += DamageBonus;
-                Console.WriteLine($"{Name} equipped! Damage +{DamageBonus}.");
+                if (creature is Player player)
+                {
+                    player.WeaponValue += DamageBonus;
+                    Console.WriteLine($"{Name} equipped! Damage +{DamageBonus}.");
+                }
+            }
+
+            /// <summary>
+            /// Overrides GetInfo with weapon-specific details.
+            /// </summary>
+            public override string GetInfo()
+            {
+                return $"{base.GetInfo()} (Damage Bonus: {DamageBonus})";
             }
         }
 
-
+        
         // Potion subclass
         public class Potion : Item
         {
             public int HealAmount { get; set; }
 
             public Potion(string name, int healAmount, string description = "")
-                : base(name, description)
+            : base(name, description)
             {
                 Type = "potion"; // Set type for LINQ filtering
                 HealAmount = healAmount;
             }
 
-            public override void Use(Player player)
+            /// <summary>
+            /// Overrides base Use method with potion-specific behavior.
+            /// </summary>
+            public override void Use(Creature creature)
             {
-                player.Health += HealAmount;
+                creature.Heal(HealAmount);
                 Console.WriteLine($"{Name} consumed! Healed +{HealAmount} HP.");
+            }
+
+            /// <summary>
+            /// Overrides GetInfo with potion-specific details.
+            /// </summary>
+            public override string GetInfo()
+            {
+                return $"{base.GetInfo()} (Heals: {HealAmount} HP)";
             }
         }
 
@@ -59,16 +110,20 @@ namespace DungeonExplorer
             public string DoorID { get; set; }  // e.g., "final_room"
 
             public Key(string name, string doorID, string description = "")
-                : base(name, description)
+            : base(name, description)
             {
                 Type = "key"; // Set type for LINQ filtering
                 DoorID = doorID;
             }
 
-            public override void Use(Player player)
+            public override void Use(Creature creature)
             {
                 Console.WriteLine($"{Name} unlocks {DoorID}.");
             }
         }
     }
 }
+    
+        
+    
+

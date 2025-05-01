@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using DungeonExplorer;
 
 namespace DungeonExplorer
 {
@@ -19,13 +20,14 @@ namespace DungeonExplorer
         {
             // Arrange
             var player = new Player("TestPlayer", 10);
+            int initialDamage = player.Damage; // Should be 2 (Power 1 + WeaponValue 1)
 
             // Act
             player.PickUpItem(new Item.Weapon("Spectre Wand", 1, ""));
 
             // Assert
             Debug.Assert(player.WeaponValue == 2, "WeaponValue should be 2 after picking up Spectre Wand.");
-            Debug.Assert(player.Damage == 2, "Damage should be 2 after picking up Spectre Wand.");
+            Debug.Assert(player.Damage == 3, "Damage should be 3 after picking up Spectre Wand.");
             Console.WriteLine("TestPlayerPickUpItem passed.");
         }
 

@@ -2,28 +2,20 @@
 using System.Collections.Generic;
 using static System.Net.Mime.MediaTypeNames;
 using DungeonExplorer;
+using System.Linq;
 
 namespace DungeonExplorer
 {
     /// <summary>
     /// Represents the player in the game.
+    /// Inherits from Creature base class.
     /// </summary>
-    public class Player
+    public class Player : Creature
     {
         /// <summary>
-        /// Gets or sets the player's name.
+        /// Gets ir sets the player's damage value.
         /// </summary>
-        public string Name { get; set; } // Make these a property
-        
-        /// <summary>
-        /// Gets or sets the player's health.
-        /// </summary>
-        public int Health { get; set; }
-
-        /// <summary>
-        /// Gets or sets the player's damage.
-        /// </summary>
-        public int Damage { get; set; }
+        public int Damage => Power + WeaponValue;
 
         /// <summary>
         /// Gets or sets the player's armor value.
@@ -40,11 +32,6 @@ namespace DungeonExplorer
         /// </summary>
         public int WeaponValue { get; set; }
 
-        /// <summary>
-        /// Gets the player's maximum health.
-        /// </summary>
-        public int MaxHealth { get; private set; } // Add a property for MaxHealth
-
         private Inventory inventory = new Inventory();
 
         /// <summary>
@@ -52,12 +39,12 @@ namespace DungeonExplorer
         /// </summary>
         /// <param name="name">The player's name.</param>
         /// <param name="health">The player's initial health.</param>
-        public Player(string name, int health)
+        public Player(string name, int health) : base()
         {
             Name = name;
             Health = health;
             MaxHealth = health;
-            Damage = 1;
+            Power = 1; // Base attack power
             ArmourValue = 0;
             Potion = 5;
             WeaponValue = 1;
@@ -66,13 +53,15 @@ namespace DungeonExplorer
         /// <summary>
         /// Adds an item to the player's inventory and applies stat bonuses.
         /// </summary>
-        /// <param name="item">The item to add.</param>
-        public void PickUpItem(Item item)
+        /// <param name="item">The item to add, must implement ICollectible.</param>
+        public void PickUpItem(ICollectible item)
         {
-            inventory.Add(item);
-            item.Use(this); // Applys the item effect   
-            Console.WriteLine($"{Name} picked up {item.Name}!");
-
+            item.OnCollect(this); // This will call the item's specific collection logic
+            if (item is Item concreteItem)
+            {
+                inventory.AddItem(concreteItem);
+                Console.WriteLine($"{Name} picked up {concreteItem.Name}!");
+            }
         }
 
         /// <summary>
@@ -90,12 +79,48 @@ namespace DungeonExplorer
         /// Heals the player by a specified amount without exceeding MaxHealth.
         /// </summary>
         /// <param name="amount">The amount to heal.</param>
-        public void Heal(int amount)
+        public override void Heal(int amount)
         {
-            Health += amount;
-            if (Health > MaxHealth)
+            Health = Math.Min(Health + amount, MaxHealth);
+        }
+
+        /// <summary>
+        /// Creates a simple string containing essential player data for saving.
+        /// </summary>
+        public string GetSimpleSaveData()
+        {
+            // Format: Name,Health,MaxHealth,PotionCount,HasKey,HasWeapon
+            bool hasKey = inventory.GetItems().Any(i => i is Item.Key);
+            bool hasWeapon = inventory.GetItems().Any(i => i is Item.Weapon);
+            return $"{Name},{Health},{MaxHealth},{Potion},{hasKey},{hasWeapon}";
+        }
+
+        /// <summary>
+        /// Loads basic player data from a saved string.
+        /// </summary>
+        public void LoadSimpleData(string data)
+        {
+            string[] values = data.Split(',');
+            if (values.Length != 6) return;
+
+            // Clear inventory
+            inventory = new Inventory();
+
+            Name = values[0];
+            Health = int.Parse(values[1]);
+            MaxHealth = int.Parse(values[2]);
+            Potion = int.Parse(values[3]);
+
+            // Restore key if had one
+            if (bool.Parse(values[4]))
             {
-                Health = MaxHealth; // Cap health at MaxHealth
+                PickUpItem(new Item.Key("Dungeon Key", "final_room", "Restored key"));
+            }
+
+            // Restore weapon if had one
+            if (bool.Parse(values[5]))
+            {
+                PickUpItem(new Item.Weapon("Basic Sword", 1, "Restored weapon"));
             }
         }
     }
